@@ -15,6 +15,9 @@
     "seed:ghion": "node src/scripts/seedGhionSaccos.js",
     "seed:files": "node src/scripts/seedFromFiles.js",
     "seed:hawassa": "node src/scripts/seedHawassaDemo.js",
+    "seed:mobile": "node src/scripts/seedMobileMember.js",
+    "seed:demo-roles": "node src/scripts/seedDemoRoles.js",
+    "seed:bole-accounts": "node src/scripts/seedBoleMappedAccounts.js",
     "seed:test": "node src/scripts/seedTestData.js",
     "clean:test": "node src/scripts/cleanSystemData.js",
     "db:migrate": "prisma migrate dev",
@@ -22,7 +25,8 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "test": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:watch": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --watch"
+    "test:watch": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:mobile": "node tests/mobileApi.integration.mjs"
   },
   "keywords": [
     "pms",

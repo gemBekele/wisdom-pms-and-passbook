@@ -5,6 +5,17 @@ export const errorHandler = (err, req, res, next) => {
   // Log error
   console.error(err);
 
+  // body-parser errors (malformed JSON, payload too large)
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ success: false, message: 'Invalid JSON payload' });
+  }
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ success: false, message: 'Payload too large' });
+  }
+  if (err.status && err.status >= 400 && err.status < 500) {
+    return res.status(err.status).json({ success: false, message: err.message || 'Bad request' });
+  }
+
   // Prisma not found error
   if (err.code === 'P2025') {
     const message = 'Resource not found';

@@ -3,8 +3,45 @@ import { useUser } from '@/contexts/UserContext';
 import { mappedAccountsAPI, dashboardAPI } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
-import { Phone, TrendingUp, TrendingDown, Banknote, Target, Users, PiggyBank, FileText, ChevronDown, ChevronRight, User } from 'lucide-react';
+import { LoanScheduleViewer } from '@/components/npl/LoanScheduleViewer';
+import { Phone, TrendingUp, TrendingDown, Banknote, Target, Users, PiggyBank, FileText, ChevronDown, ChevronRight, User, CalendarDays } from 'lucide-react';
+
+const isLoanAccount = (a: any) => a.accountType === 'Loan' || /loan/i.test(a.product || '');
+
+function LoanScheduleModal({ account, onClose }: { account: any; onClose: () => void }) {
+  if (!account) return null;
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+          <div>
+            <h3 className="font-semibold text-slate-800">Loan Schedule &amp; Repayments</h3>
+            <p className="text-xs text-slate-500">{account.customerName} · {account.accountNumber}</p>
+          </div>
+          <button onClick={onClose} className="text-sm text-slate-500 hover:text-slate-800">Close</button>
+        </div>
+        <div className="p-5">
+          <LoanScheduleViewer accountId={account.id} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ScheduleButton({ account, onOpen }: { account: any; onOpen: (a: any) => void }) {
+  if (!isLoanAccount(account)) return null;
+  return (
+    <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => onOpen(account)}>
+      <CalendarDays className="h-3 w-3 mr-1" />
+      Schedule
+    </Button>
+  );
+}
 
 const KPI_COLORS: Record<string, string> = {
   Account_Productivity: 'bg-emerald-50 border-emerald-200 text-emerald-700',
@@ -28,7 +65,7 @@ const KPI_ICONS: Record<string, any> = {
 
 export function MappedAccounts() {
   const { user, role } = useUser();
-  const isBranchManager = user?.role === 'branch_manager';
+  const isBranchManager = role === 'branchManager' || user?.role === 'branchManager';
   const isSupervisor = role === 'supervisor';
   const [data, setData] = useState<any>(null);
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -38,6 +75,7 @@ export function MappedAccounts() {
   const [selectedStaff, setSelectedStaff] = useState<string | null>(null);
   const [staffAccounts, setStaffAccounts] = useState<any[]>([]);
   const [staffLoading, setStaffLoading] = useState(false);
+  const [scheduleAccount, setScheduleAccount] = useState<any>(null);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -126,6 +164,7 @@ export function MappedAccounts() {
         key: 'activeStatus', header: 'Status',
         render: (a: any) => <Badge variant={a.activeStatus ? 'default' : 'secondary'} className="text-xs">{a.activeStatus ? 'Active' : 'Inactive'}</Badge>,
       },
+      { key: 'action', header: '', render: (a: any) => <ScheduleButton account={a} onOpen={setScheduleAccount} /> },
     ];
 
     return (
@@ -177,6 +216,8 @@ export function MappedAccounts() {
             </div>
           </CardContent>
         </Card>
+
+        <LoanScheduleModal account={scheduleAccount} onClose={() => setScheduleAccount(null)} />
       </div>
     );
   }
@@ -283,6 +324,7 @@ export function MappedAccounts() {
                     },
                     { key: 'activeStatus', header: 'Status', render: (a: any) => <Badge variant={a.activeStatus ? 'default' : 'secondary'} className="text-xs">{a.activeStatus ? 'Active' : 'Inactive'}</Badge> },
                     { key: 'isProductive', header: 'Productivity', render: (a: any) => <Badge variant={a.isProductive ? 'default' : 'outline'} className="text-xs">{a.isProductive ? 'Productive' : 'Non-Productive'}</Badge> },
+                    { key: 'action', header: '', render: (a: any) => <ScheduleButton account={a} onOpen={setScheduleAccount} /> },
                   ]}
                   data={myAccounts}
                   rowKey={(a) => a.id}
@@ -352,6 +394,7 @@ export function MappedAccounts() {
                               },
                               { key: 'activeStatus', header: 'Status', render: (a: any) => <Badge variant={a.activeStatus || a.active_status ? 'default' : 'secondary'} className="text-[10px]">{a.activeStatus || a.active_status ? 'Active' : 'Inactive'}</Badge> },
                               { key: 'isProductive', header: 'Productivity', render: (a: any) => <Badge variant={a.isProductive ? 'default' : 'outline'} className="text-[10px]">{a.isProductive ? 'Productive' : 'Non-Productive'}</Badge> },
+                              { key: 'action', header: '', render: (a: any) => <ScheduleButton account={a} onOpen={setScheduleAccount} /> },
                             ]}
                             data={staffAccounts}
                             rowKey={(a) => a.id || a.accountNumber}
@@ -366,6 +409,7 @@ export function MappedAccounts() {
             </div>
           </div>
         )}
+        <LoanScheduleModal account={scheduleAccount} onClose={() => setScheduleAccount(null)} />
       </div>
     );
   }
@@ -476,6 +520,7 @@ export function MappedAccounts() {
                 },
                 { key: 'activeStatus', header: 'Status', render: (a: any) => <Badge variant={a.activeStatus ? 'default' : 'secondary'} className="text-xs">{a.activeStatus ? 'Active' : 'Inactive'}</Badge> },
                 { key: 'isProductive', header: 'Productivity', render: (a: any) => <Badge variant={a.isProductive ? 'default' : 'outline'} className="text-xs">{a.isProductive ? 'Productive' : 'Non-Productive'}</Badge> },
+                { key: 'action', header: '', render: (a: any) => <ScheduleButton account={a} onOpen={setScheduleAccount} /> },
               ]}
               data={myAccounts || []}
               rowKey={(a) => a.id}
@@ -484,6 +529,8 @@ export function MappedAccounts() {
           </div>
         </CardContent>
       </Card>
+
+      <LoanScheduleModal account={scheduleAccount} onClose={() => setScheduleAccount(null)} />
     </div>
   );
 }

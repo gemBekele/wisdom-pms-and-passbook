@@ -71,6 +71,7 @@ import nplRoutes from './routes/nplRoutes.js';
 import teamRoutes from './routes/teamRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
+import mobileRoutes from './routes/mobileRoutes.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -98,6 +99,9 @@ app.use('/api/npl', nplRoutes);
 app.use('/api', teamRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/settings', settingsRoutes);
+
+// Customer-facing mobile API (separate auth/token audience)
+app.use('/api/v1/mobile', mobileRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

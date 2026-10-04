@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Ghion SACCOS",
+    "slug": "ghion-saccos-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "ghion",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#131759"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "et.ghion.saccos"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#131759",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      },
+      "softwareKeyboardLayoutMode": "resize",
+      "predictiveBackGestureEnabled": false,
+      "package": "et.ghion.saccos"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-localization",
+      "expo-secure-store",
+      "expo-font",
+      "expo-splash-screen"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "useMock": false
+    }
+  }
+}

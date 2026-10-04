@@ -64,6 +64,23 @@ export function Login() {
     return true;
   });
 
+  const DEMO_ACCOUNTS = [
+    { label: 'Admin', email: 'admin@sako.com', password: 'admin123' },
+    { label: 'Area Manager', email: 'area@sako.com', password: 'demo1234' },
+    { label: 'Branch Manager', email: 'branch@sako.com', password: 'demo1234' },
+    { label: 'Supervisor', email: 'supervisor@sako.com', password: 'demo1234' },
+    { label: 'Staff', email: 'staff@sako.com', password: 'demo1234' },
+  ];
+
+  const fillDemoCredentials = (account: { email: string; password: string }) => {
+    const user = users.find(u => u.email === account.email);
+    setSelectedUser(user || { email: account.email, name: account.email, role: 'staff', position: '' });
+    setPassword(account.password);
+    setRoleFilter('');
+    setSearchQuery('');
+    setError('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -245,6 +262,29 @@ export function Login() {
             <Button type="submit" className="w-full h-11 text-base font-semibold rounded-lg shadow-md" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </Button>
+
+            <div className="rounded-lg border border-dashed border-primary-300 bg-primary-50/60 px-4 py-3">
+              <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary-700">Demo credentials</div>
+              <div className="divide-y divide-primary-100">
+                {DEMO_ACCOUNTS.map(account => (
+                  <div key={account.email} className="flex items-center justify-between gap-3 py-1.5">
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold text-slate-700">{account.label}</div>
+                      <div className="truncate font-mono text-[11px] text-slate-500">
+                        {account.email} · {account.password}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => fillDemoCredentials(account)}
+                      className="shrink-0 text-xs font-semibold text-primary-600 hover:text-primary-800 hover:underline"
+                    >
+                      Use
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <p className="text-center text-xs text-slate-400 mt-6">
               Secure System &copy; {new Date().getFullYear()} SACCOS

@@ -183,7 +183,7 @@ export const getBranchMappedAccounts = asyncHandler(async (req, res) => {
   const branchId = req.user.branchId;
 
   const accounts = await prisma.accountMapping.findMany({
-    where: { branchId, status: { not: 'Inactive' } },
+    where: { branchId, status: { not: 'Inactive' }, mappedToId: { not: null } },
     include: {
       mappedTo: { select: { id: true, name: true, employeeId: true, position: true } },
     },
@@ -195,18 +195,21 @@ export const getBranchMappedAccounts = asyncHandler(async (req, res) => {
     accountNumber: a.accountNumber,
     customerName: a.customerName,
     phoneNumber: a.phoneNumber,
+    accountType: a.accountType,
     currentBalance: a.current_balance,
     juneBalance: a.june_balance,
     difference: (a.current_balance || 0) - (a.june_balance || 0),
     activeStatus: a.active_status,
     isProductive: a.isProductive,
     product: a.product,
-    mappedTo: {
-      id: a.mappedTo.id,
-      name: a.mappedTo.name,
-      employeeId: a.mappedTo.employeeId,
-      position: a.mappedTo.position,
-    },
+    mappedTo: a.mappedTo
+      ? {
+          id: a.mappedTo.id,
+          name: a.mappedTo.name,
+          employeeId: a.mappedTo.employeeId,
+          position: a.mappedTo.position,
+        }
+      : null,
   }));
 
   res.status(200).json({ success: true, data: mapped });

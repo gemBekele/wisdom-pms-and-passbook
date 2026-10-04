@@ -17,6 +17,13 @@ export const protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Customer/mobile tokens (aud:"mobile") must never reach staff routes.
+    if (decoded.aud) {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized to access this route',
+      });
+    }
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {

@@ -811,3 +811,60 @@ model SystemSetting {
 
   @@map("system_settings")
 }
+
+// ============== MOBILE / CUSTOMER-FACING ==============
+
+model Member {
+  id            String   @id @default(uuid()) @map("_id")
+  phoneNumber   String   @unique // normalized: 9 local digits, e.g. 912345678
+  fullName      String
+  pinHash       String?
+  pinAttempts   Int      @default(0)
+  pinLockedUntil DateTime?
+  pinChangedAt  DateTime?
+  tokenVersion  Int      @default(1)
+  isActive      Boolean  @default(true)
+  biometricsId  String?
+  lastLoginAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  otps          MobileOtp[]
+  loanRequests  MobileLoanRequest[]
+
+  @@index([phoneNumber])
+  @@map("members")
+}
+
+model MobileOtp {
+  id          String    @id @default(uuid()) @map("_id")
+  memberId    String
+  member      Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  codeHash    String
+  purpose     String    @default("login") // login | set_pin
+  attempts    Int       @default(0)
+  consumedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@index([memberId, purpose, createdAt])
+  @@map("mobile_otps")
+}
+
+model MobileLoanRequest {
+  id                 String   @id @default(uuid()) @map("_id")
+  memberId           String
+  member             Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  productName        String
+  amount             Float
+  termMonths         Int
+  monthlyInstallment Float    @default(0)
+  interestRate       Float    @default(0)
+  status             String   @default("pending") // pending | approved | rejected
+  note               String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([memberId, createdAt])
+  @@map("mobile_loan_requests")
+}
